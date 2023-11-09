@@ -34,7 +34,8 @@ public class ClientConsole implements ChatIF
    */
   ChatClient client;
   
-  
+  // variable to store loginID of client 
+  String loginID;
   
   /**
    * Scanner to read from the console
@@ -50,12 +51,12 @@ public class ClientConsole implements ChatIF
    * @param host The host to connect to.
    * @param port The port to connect on.
    */
-  public ClientConsole(String host, int port) 
+  public ClientConsole(String loginID, String host, int port) 
   {
     try 
     {
-      client= new ChatClient(host, port, this);
-      
+      client= new ChatClient(loginID, host, port, this);
+      this.loginID = loginID;
       
     } 
     catch(IOException exception) 
@@ -104,7 +105,7 @@ public class ClientConsole implements ChatIF
    */
   public void display(String message) 
   {
-    System.out.println("> " + message);
+    System.out.println(loginID+"> " + message);
   }
 
   
@@ -113,23 +114,37 @@ public class ClientConsole implements ChatIF
   /**
    * This method is responsible for the creation of the Client UI.
    *
-   * @param args[0] The host to connect to.
+   * @param args[0] The loginID of the client.
+   * @param args[1] The host to connect to.
+   * @param args[2] The port to listen on.
    */
   public static void main(String[] args) 
   {
+	String loginID = "";
     String host = "";
-
-
+    int port = 0;
+    
+    if (args.length < 1) {
+    	System.out.println("Error: No loginID provided. Client Terminated.");
+    	System.exit(0);
+    }
+    
     try
     {
-      host = args[0];
+      loginID = args[0];
+      host = args[1];
+      port = Integer.parseInt(args[2]);
     }
     catch(ArrayIndexOutOfBoundsException e)
     {
       host = "localhost";
+      port = DEFAULT_PORT;
     }
-    ClientConsole chat= new ClientConsole(host, DEFAULT_PORT);
-    chat.accept();  //Wait for console data
+    catch (NumberFormatException ne) {
+    	port = DEFAULT_PORT;
+    }
+    ClientConsole chat= new ClientConsole(loginID, host, port);
+    chat.accept();
   }
 }
 //End of ConsoleChat class
